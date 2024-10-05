@@ -1,8 +1,0 @@
-﻿T4 é uma ferramenta de geração de código integrada ao Visual Studio. 
-Ele permite gerar arquivos de texto, como código fonte, a partir de templates. 
-Os templates podem conter lógica em C# que gera código repetitivo de forma automatizada.
-
-Quando você salva a edição desse arquivo, o VS já gera automaticamente o que você programou nele.
-
-No arquivo Example.tt eu criei um código para gerar três classes chamadas MyClass1, MyClass2, etc., com uma lista definida de propriedades. 
-A lógica em C# dentro do template gera o código automaticamente.
