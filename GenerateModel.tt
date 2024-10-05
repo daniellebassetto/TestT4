@@ -1,0 +1,93 @@
+﻿<#@ template debug="true" hostspecific="true" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+
+<#
+    // Definindo namespaces
+    string modelNamespace = "TestT4.Models";
+    string repositoryNamespace = "TestT4.Repositories";
+    string serviceNamespace = "TestT4.Services";
+
+    // Nome do modelo a ser gerado
+    string modelName = "Product";
+
+    // Caminhos completos para os arquivos de saída
+    string repositoryPath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "Repositories", $"{modelName}Repository.cs");
+    string servicePath = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), "Services", $"{modelName}Service.cs");
+    // Código gerado como string para o repositório
+    string repositoryOutput = $@"
+using {modelNamespace};
+
+namespace {repositoryNamespace}
+{{
+    public interface I{modelName}Repository
+    {{
+        IEnumerable<{modelName}> GetAll();
+        {modelName} GetById(int id);
+        void Add({modelName} {modelName.ToLower()});
+        void Update({modelName} {modelName.ToLower()});
+        void Delete(int id);
+    }}
+
+    public class {modelName}Repository : I{modelName}Repository
+    {{
+        private readonly List<{modelName}> _{modelName.ToLower()}s = new List<{modelName}>();
+
+        public IEnumerable<{modelName}> GetAll() => _{modelName.ToLower()}s;
+
+        public {modelName} GetById(int id) => _{modelName.ToLower()}s.FirstOrDefault(p => p.Id == id);
+
+        public void Add({modelName} {modelName.ToLower()}) => _{modelName.ToLower()}s.Add({modelName.ToLower()});
+
+        public void Update({modelName} {modelName.ToLower()})
+        {{
+            var existing = GetById({modelName.ToLower()}.Id);
+            if (existing != null)
+            {{
+                existing.Name = {modelName.ToLower()}.Name;
+                existing.Price = {modelName.ToLower()}.Price;
+            }}
+        }}
+
+        public void Delete(int id)
+        {{
+            var product = GetById(id);
+            if (product != null)
+            {{
+                _{modelName.ToLower()}s.Remove(product);
+            }}
+        }}
+    }}
+}}";
+    // Código gerado como string para o serviço
+    string serviceOutput = $@"
+using {modelNamespace};
+using {repositoryNamespace};
+
+namespace {serviceNamespace}
+{{
+    public class {modelName}Service
+    {{
+        private readonly I{modelName}Repository _repository;
+
+        public {modelName}Service(I{modelName}Repository repository)
+        {{
+            _repository = repository;
+        }}
+
+        public IEnumerable<{modelName}> GetAll() => _repository.GetAll();
+        public {modelName} GetById(int id) => _repository.GetById(id);
+        public void Add({modelName} {modelName.ToLower()}) => _repository.Add({modelName.ToLower()});
+        public void Update({modelName} {modelName.ToLower()}) => _repository.Update({modelName.ToLower()});
+        public void Delete(int id) => _repository.Delete(id);
+    }}
+}}";
+
+// Salva o código gerado nos arquivos apropriados
+File.WriteAllText(repositoryPath, repositoryOutput);
+File.WriteAllText(servicePath, serviceOutput);
+#>
